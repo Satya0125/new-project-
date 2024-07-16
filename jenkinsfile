@@ -1,0 +1,318 @@
+Skip to sidebar navigation
+Skip to content
+Linked Applications
+Bitbucket
+Your work
+Projects
+Repositories
+Search for code, commits or repositories
+Search for code, commits or repositories...
+Help
+Administration
+Inbox
+Logged in as Satya. Guttula (satya.guttula)
+CCP_Automations
+Clone
+Create branch
+Create pull request
+Create fork
+Compare
+
+
+Source
+Commits
+Branches
+Pull requests
+Forks
+Builds
+Repository settings
+
+CCP_Automations
+onboarding-automation
+Source
+Source branchBranchmaster
+Branch actions
+onboarding-automation/packer/aws.jenkinsfile
+Ravi Kumar
+Ravi Kumar
+ authored 
+865647902ab
+10 Jun 2024
+Edit
+Blame
+Raw file
+Source view
+Diff to previous
+History
+32.56 KB
+203
+​
+204
+                [$class: 'DynamicReferenceParameter',
+205
+            choiceType: 'ET_FORMATTED_HTML', description: 'AWS secret access key', name: 'TARGET_AWS_SECRET_ACCESS_KEY', omitValueField: true, referencedParameters: 'DEPLOY_ENV',
+206
+            script: [
+207
+                $class: 'GroovyScript',
+208
+                fallbackScript: [ classpath: [], sandbox: true, script: 
+209
+                    'return[\'Parameter is only used for Copy scenario\']'
+210
+                ],
+211
+                script: [
+212
+                    classpath: [], sandbox: true, script:
+213
+                        ''' if (DEPLOY_ENV == 'Copy'){
+214
+                                inputBox = "<input type='password' id='pass' name='password' minlength='1' required>"
+215
+                                return inputBox
+216
+                            }
+217
+                        '''
+218
+                ]
+219
+            ]
+220
+        ],
+221
+​
+222
+        string (name: 'RUN_BY', defaultValue: 'ccpautomation.pl@capgemini.com', description: 'Owner of created resources'),
+223
+        string (name: 'COMMENT', defaultValue: '', description: 'Additional Comment'),
+224
+​
+225
+        [$class: 'CascadeChoiceParameter', 
+226
+            choiceType: 'PT_SINGLE_SELECT', description: 'Remove test image if parameter is True', name: 'REMOVE_TEST_IMAGE', referencedParameters: 'DEPLOY_ENV', 
+227
+            script: [
+228
+                $class: 'GroovyScript',
+229
+                fallbackScript: [ classpath: [], sandbox: true, script: 
+230
+                    'return[\'False\']'
+231
+                ],
+232
+                script: [ classpath: [], sandbox: true, script: 
+233
+                    ''' if (DEPLOY_ENV == 'Test'){
+234
+                            return["True", "False"]
+235
+                        }
+236
+                    '''
+237
+                ]
+238
+            ]
+239
+        ],
+240
+​
+241
+        [$class: 'CascadeChoiceParameter', 
+242
+            choiceType: 'PT_SINGLE_SELECT', name: 'CLOUDNATIVE', referencedParameters: 'DEPLOY_ENV', 
+243
+            script: [
+244
+                $class: 'GroovyScript',
+245
+                fallbackScript: [ classpath: [], sandbox: true, script: 
+246
+                    'return[\'False\']'
+247
+                ],
+248
+                script: [ classpath: [], sandbox: true, script: 
+249
+                    ''' if (DEPLOY_ENV == 'Test' || DEPLOY_ENV == 'Publish'){
+250
+                            return["False", "True"]
+251
+                        }
+252
+                    '''
+253
+                ]
+254
+            ]
+255
+        ],
+256
+​
+257
+        [$class: 'CascadeChoiceParameter', 
+258
+            choiceType: 'PT_SINGLE_SELECT', description: 'Copy images to additional regions for CPP usage (us-east-1).', name: 'COPY_TO_ADDITIONAL_REGIONS', referencedParameters: 'DEPLOY_ENV', 
+259
+            script: [
+260
+                $class: 'GroovyScript',
+261
+                fallbackScript: [ classpath: [], sandbox: true, script: 
+262
+                    'return[\'False\']'
+263
+                ],
+264
+                script: [ classpath: [], sandbox: true, script: 
+265
+                    ''' if (DEPLOY_ENV == 'Publish'){
+266
+                            return["False", "True"]
+267
+                        }
+268
+                    '''
+269
+                ]
+270
+            ]
+271
+        ],
+272
+​
+273
+        [$class: 'CascadeChoiceParameter', 
+274
+            choiceType: 'PT_CHECKBOX', filterLength: 1, filterable: true, name: 'ENABLE_MODULES', referencedParameters: 'DEPLOY_ENV', 
+275
+            script: [
+276
+                $class: 'GroovyScript',
+277
+                fallbackScript: [ classpath: [], sandbox: true, script: 
+278
+                    'return[\'ENABLE_FACTER_DISPLAY,ENABLE_REPOSITORY,ENABLE_TIMEZONE,ENABLE_ZABBIX_AGENT,ENABLE_GRAYLOG_AGENT,ENABLE_DS_AGENT,ENABLE_DC_AGENT,ENABLE_CLOUD_AGENT,ENABLE_CVE_PATCHES,ENABLE_DEVOPS_SOFTWARE,ENABLE_DEVOPS_SOFTWARE_PYTHON3,ENABLE_DEVOPS_SOFTWARE_NETWORK_DIAGNOSTIC,ENABLE_DEVOPS_SOFTWARE_JQ,ENABLE_DEVOPS_SOFTWARE_CCP_CONFIGURE,ENABLE_DEVOPS_SOFTWARE_CCP_POSTPROVISION_TESTS,ENABLE_HARDENING,ENABLE_HARDENING_CIS_HARDENING,ENABLE_HARDENING_CIS_ERRATA,ENABLE_HARDENING_FILES_SECURITY,ENABLE_HARDENING_CRON_ROOT,ENABLE_HARDENING_SELINUX,ENABLE_HARDENING_FIREWALL,ENABLE_HARDENING_NETWORK,ENABLE_HARDENING_SSHD_CONFIG,ENABLE_HARDENING_WARNING_BANNER,ENABLE_HARDENING_RSYSLOG_CONFIG,ENABLE_HARDENING_FSTAB,ENABLE_HARDENING_CIS_TEMPERING,ENABLE_HARDENING_CIS_COMPLIANCE_CHECK,ENABLE_CLOUDNATIVE\']'
+279
+                ],
+280
+                script: [ classpath: [], sandbox: true, script: 
+281
+                    ''' if (DEPLOY_ENV == 'Test' || DEPLOY_ENV == 'Publish'){
+282
+                            return[
+283
+                                "ENABLE_FACTER_DISPLAY:disabled:selected",
+284
+                                "ENABLE_REPOSITORY:disabled:selected",
+285
+                                "ENABLE_TIMEZONE:disabled:selected",
+286
+                                "ENABLE_DEVOPS_SOFTWARE:disabled:selected",
+287
+                                "ENABLE_HARDENING:disabled:selected",
+288
+                                "ENABLE_ZABBIX_AGENT:selected",
+289
+                                "ENABLE_GRAYLOG_AGENT:selected",
+290
+                                "ENABLE_DS_AGENT:selected",
+291
+                                "ENABLE_DC_AGENT:selected",
+292
+                                "ENABLE_CLOUD_AGENT:selected",
+293
+                                "ENABLE_CVE_PATCHES:selected",
+294
+                                "ENABLE_CREATE_USER:selected",
+295
+                                "ENABLE_CLOUDNATIVE",
+296
+                                "ENABLE_HARDENING_CIS_ASSESSOR_SCAN:selected",
+297
+                                "ENABLE_CLOUD_MONITORING:selected"
+298
+                            ]
+299
+                        }
+300
+                    '''
+301
+                ]
+302
+            ]
+303
+        ],
+304
+​
+305
+        [$class: 'CascadeChoiceParameter', 
+306
+            choiceType: 'PT_SINGLE_SELECT', description: 'Skip test stages', name: 'SKIP_TESTS', referencedParameters: 'DEPLOY_ENV', 
+307
+            script: [
+308
+                $class: 'GroovyScript',
+309
+                fallbackScript: [ classpath: [], sandbox: true, script: 
+310
+                    'return[\'False\']'
+311
+                ],
+312
+                script: [ classpath: [], sandbox: true, script: 
+313
+                    ''' if (DEPLOY_ENV == 'Test'){
+314
+                            return["False", "True"]
+315
+                        }
+316
+                    '''
+317
+                ]
+318
+            ]
+319
+        ]
+320
+    ])
+321
+])
+322
+​
+323
+pipeline {
+324
+    agent {
+325
+        label 'ecs-worker-aws'
+326
+    }
+327
+    triggers{
+328
+        cron(env.BRANCH_NAME == 'master' ? '10 7 * * 1' : '')
+329
+    }
+330
+    stages {
+331
+        stage ("Prepare parameters for automatic build") {
+332
+            when { triggeredBy 'TimerTrigger' }
+333
+            steps{
+334
+                script {
+335
+                    deploy_env = 'Publish'
+336
+                    images=images.replace("'", "")
+337
+                    images=images.replace("[", "\"")
+
