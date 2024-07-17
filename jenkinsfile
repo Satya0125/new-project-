@@ -1,25 +1,20 @@
 pipeline {
     agent any
-
     stages {
-        stage('Build') {
+        stage('Plan') {
             steps {
-                echo 'Building...'
-                sh 'make build' // Example build command
+                sh 'terraform init'
+                sh 'terraform plan -out=tfplan'
             }
         }
-        
         stage('Test') {
             steps {
-                echo 'Testing...'
-                sh 'make test' // Example test command
+                sh 'terraform validate'
             }
         }
-        
-        stage('Deploy') {
+        stage('Apply') {
             steps {
-                echo 'Deploying...'
-                sh 'make deploy' // Example deploy command
+                sh 'terraform apply -auto-approve tfplan'
             }
         }
     }
